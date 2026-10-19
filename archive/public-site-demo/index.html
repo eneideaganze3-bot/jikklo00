@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JIKKLO — Energy &amp; Digital, Bukavu</title>
+  <meta name="description" content="JIKKLO SAS — entreprise basée à Bukavu (RDC), active dans l'énergie (carburant, huiles, accessoires automobiles) et les services numériques." />
+  <meta property="og:title" content="JIKKLO — Energy & Digital" />
+  <meta property="og:description" content="Entreprise basée à Bukavu, RDC — Energy et Digital." />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://jikklo.com/" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Des solutions concrètes,<br>pensées pour Bukavu.</h1>
+      <p>JIKKLO construit deux activités complémentaires : l'énergie (carburant, huiles, accessoires) et les services numériques — avec l'ambition de bâtir une entreprise durable.</p>
+      <div class="btn-group">
+        <a href="/shop.html" class="btn btn-accent">Voir la boutique</a>
+        <a href="/about.html" class="btn btn-outline">Découvrir JIKKLO</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">Nos activités</h2>
+      <p class="section-sub">Deux branches, une même ambition.</p>
+      <div class="activity-grid">
+        <div class="activity-card">
+          <h3>Jikklo Energy</h3>
+          <p>Carburant, huiles moteur, lubrifiants et accessoires automobiles — avec des prix mis à jour en temps réel.</p>
+          <a href="/energy.html" class="btn btn-navy">Découvrir Energy →</a>
+        </div>
+        <div class="activity-card">
+          <h3>Jikklo Digital</h3>
+          <p>Services numériques pensés pour répondre aux besoins locaux, avec une architecture évolutive.</p>
+          <a href="/digital.html" class="btn btn-navy">Découvrir Digital →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">Produits en vedette</h2>
+      <p class="section-sub">Directement depuis notre catalogue — prix et disponibilité en direct.</p>
+      <div id="featured-grid" class="product-grid">
+        <p class="empty-state">Chargement…</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    async function loadFeatured() {
+      const grid = document.getElementById("featured-grid");
+      try {
+        const res = await window.jikkloApi.get("/api/public/products");
+        const featured = (res.products || []).filter(p => p.featured).slice(0, 8);
+        const list = featured.length ? featured : (res.products || []).slice(0, 8);
+        if (list.length === 0) {
+          grid.innerHTML = '<p class="empty-state">Aucun produit disponible pour le moment.</p>';
+          return;
+        }
+        grid.innerHTML = list.map(p => `
+          <a href="/product/?id=${p.id}" class="product-card">
+            <div class="thumb">Image</div>
+            <div class="body">
+              <div class="name">${p.name}</div>
+              <div class="price">${window.formatMoney(p.sale_price, p.currency)}</div>
+              <div class="stock-tag ${p.stock_quantity <= 0 ? 'out' : ''}">
+                ${p.stock_quantity > 0 ? 'Disponible' : 'Rupture de stock'}
+              </div>
+            </div>
+          </a>
+        `).join("");
+      } catch (e) {
+        grid.innerHTML = '<p class="empty-state">Impossible de charger le catalogue pour le moment.</p>';
+      }
+    }
+    loadFeatured();
+  </script>
+</body>
+</html>

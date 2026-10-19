@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Suivre ma commande — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container">
+      <h2 class="section-title">Suivre ma commande</h2>
+      <div class="form-card">
+        <div class="field">
+          <label>Numéro de commande</label>
+          <input type="text" id="order-number" placeholder="JKK-2026-000001" />
+        </div>
+        <button id="track-btn" class="btn btn-navy" style="width:100%">Suivre</button>
+        <div id="track-result" style="margin-top:16px"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    const STATUS_LABELS = {
+      new: "Nouvelle", confirmed: "Confirmée", preparing: "En préparation",
+      ready: "Prête", delivering: "En livraison", delivered: "Livrée",
+      completed: "Terminée", cancelled: "Annulée",
+    };
+
+    async function track(orderNumber) {
+      const result = document.getElementById("track-result");
+      if (!orderNumber) return;
+      try {
+        const res = await window.jikkloApi.get(`/api/orders/public/track/${encodeURIComponent(orderNumber)}`);
+        const o = res.order;
+        result.innerHTML = `
+          <div class="success-box">
+            Commande <strong>${o.order_number}</strong><br>
+            Statut : <strong>${STATUS_LABELS[o.status] || o.status}</strong><br>
+            Total : ${window.formatMoney(o.total, o.currency)}
+          </div>
+        `;
+      } catch (e) {
+        result.innerHTML = '<div class="error-box">Commande introuvable. Vérifie le numéro saisi.</div>';
+      }
+    }
+
+    document.getElementById("track-btn").addEventListener("click", () => {
+      track(document.getElementById("order-number").value.trim());
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("order")) {
+      document.getElementById("order-number").value = params.get("order");
+      track(params.get("order"));
+    }
+  </script>
+</body>
+</html>

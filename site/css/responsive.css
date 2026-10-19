@@ -1,0 +1,82 @@
+/* ==========================================================================
+   JIKKLO — responsive.css
+   Approche mobile-first : style.css et animations.css définissent la base
+   mobile ; ce fichier ajoute les ajustements pour écrans plus larges.
+   ========================================================================== */
+
+/* --- Base mobile (< 640px) : réglages fins --- */
+:root {
+  --section-padding: 4.5rem;
+}
+
+.hero-title { font-size: clamp(2.4rem, 9vw, 3.2rem); }
+.grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+.footer-cols { grid-template-columns: 1fr; }
+
+/* ==========================================================================
+   Tablette — 640px et plus
+   ========================================================================== */
+@media (min-width: 640px) {
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .footer-cols { grid-template-columns: repeat(3, 1fr); }
+  .footer-top { flex-direction: row; justify-content: space-between; align-items: flex-start; }
+}
+
+/* ==========================================================================
+   Tablette large / petit laptop — 820px et plus
+   ========================================================================== */
+@media (min-width: 820px) {
+  :root { --section-padding: 6rem; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .timeline { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ==========================================================================
+   Desktop — 1024px et plus : navbar complète, grilles finales
+   ========================================================================== */
+@media (min-width: 1024px) {
+  :root { --section-padding: 7.5rem; }
+
+  .navbar-links { display: flex; }
+  .navbar-cta { display: inline-flex; }
+  .navbar-toggle { display: none; }
+  .lang-dropdown { display: block; }
+  .theme-toggle { display: inline-flex; }
+  .mobile-menu { display: none; }
+
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .timeline { grid-template-columns: repeat(4, 1fr); }
+
+  .hero-title { font-size: clamp(3.4rem, 5.4vw, 5rem); }
+
+  .hero-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 48px;
+    align-items: center;
+  }
+
+  .about-split {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 56px;
+    align-items: start;
+  }
+}
+
+/* ==========================================================================
+   Grand écran — 1280px et plus
+   ========================================================================== */
+@media (min-width: 1280px) {
+  .container { padding: 0 32px; }
+}
+
+/* ==========================================================================
+   Filet de sécurité anti-débordement (tous écrans)
+   ========================================================================== */
+img, svg, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+table { display: block; overflow-x: auto; }

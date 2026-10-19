@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boutique — JIKKLO</title>
+  <meta name="description" content="Catalogue JIKKLO : carburant, huiles, accessoires automobiles et services numériques." />
+  <link rel="canonical" href="https://jikklo.com/shop.html" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container">
+      <h2 class="section-title">Boutique</h2>
+      <p class="section-sub">Prix et stock affichés en direct depuis JIKKLO OS.</p>
+
+      <div class="field" style="max-width:320px">
+        <input type="search" id="search-input" placeholder="Rechercher un produit…" />
+      </div>
+
+      <div class="filters" id="activity-filters">
+        <button data-activity="" class="active">Tout</button>
+        <button data-activity="energy">Energy</button>
+        <button data-activity="digital">Digital</button>
+      </div>
+
+      <div id="product-grid" class="product-grid">
+        <p class="empty-state">Chargement…</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    let allProducts = [];
+    let currentActivity = "";
+
+    function render() {
+      const grid = document.getElementById("product-grid");
+      const query = document.getElementById("search-input").value.trim().toLowerCase();
+      let list = allProducts;
+      if (currentActivity) list = list.filter(p => p.activity === currentActivity);
+      if (query) list = list.filter(p => p.name.toLowerCase().includes(query));
+
+      if (list.length === 0) {
+        grid.innerHTML = '<p class="empty-state">Aucun produit ne correspond à ta recherche.</p>';
+        return;
+      }
+      grid.innerHTML = list.map(p => `
+        <a href="/product/?id=${p.id}" class="product-card">
+          <div class="thumb">Image</div>
+          <div class="body">
+            <div class="name">${p.name}</div>
+            <div class="price">${window.formatMoney(p.sale_price, p.currency)}</div>
+            <div class="stock-tag ${p.stock_quantity <= 0 ? 'out' : ''}">
+              ${p.stock_quantity > 0 ? `${p.stock_quantity} ${p.unit} disponible(s)` : 'Rupture de stock'}
+            </div>
+          </div>
+        </a>
+      `).join("");
+    }
+
+    async function init() {
+      try {
+        const res = await window.jikkloApi.get("/api/public/products");
+        allProducts = res.products || [];
+        render();
+      } catch (e) {
+        document.getElementById("product-grid").innerHTML =
+          '<p class="empty-state">Impossible de charger le catalogue pour le moment.</p>';
+      }
+    }
+
+    document.getElementById("search-input").addEventListener("input", render);
+    document.querySelectorAll("#activity-filters button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#activity-filters button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentActivity = btn.dataset.activity;
+        render();
+      });
+    });
+
+    init();
+  </script>
+</body>
+</html>

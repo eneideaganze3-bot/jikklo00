@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:48px">
+    <div class="container">
+      <div class="form-card">
+        <h2 class="section-title" style="text-align:center">Connexion</h2>
+        <div id="error-box"></div>
+        <form id="login-form">
+          <div class="field">
+            <label>Téléphone</label>
+            <input type="tel" id="phone" required />
+          </div>
+          <div class="field">
+            <label>Mot de passe</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit" class="btn btn-navy" style="width:100%">Se connecter</button>
+        </form>
+        <p style="text-align:center;font-size:13px;margin-top:14px;color:#6B7A87">
+          Pas encore de compte ? <a href="/register.html" style="color:var(--accent)">S'inscrire</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const errorBox = document.getElementById("error-box");
+      errorBox.innerHTML = "";
+      try {
+        await window.jikkloApi.post("/api/customer/login", {
+          phone: document.getElementById("phone").value,
+          password: document.getElementById("password").value,
+        });
+        window.location.href = "/account.html";
+      } catch (err) {
+        errorBox.innerHTML = `<div class="error-box">${err.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>

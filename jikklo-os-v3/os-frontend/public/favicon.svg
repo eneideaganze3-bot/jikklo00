@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><rect width="160" height="160" rx="28" fill="#071A2B"/>
+  <!-- Monogramme JIKKLO — approximation dessinée à la main à partir de la
+       planche de marque fournie. À remplacer par le vrai fichier vectoriel
+       de votre graphiste en gardant ce nom exact : logo-mark.svg -->
+  <path
+    d="M78 46 L118 20 L118 104
+       C118 128 100 142 76 142
+       C56 142 40 132 32 114
+       L56 102
+       C60 114 68 121 78 121
+       C90 121 98 113 98 100
+       L98 42
+       L78 42
+       Z"
+    fill="#FFFFFF"
+    opacity="0.94"
+  />
+  <path
+    d="M62 56 L102 30 L102 106
+       C102 128 86 140 64 140
+       C46 140 31 130 24 114
+       L46 103
+       C50 113 57 119 66 119
+       C77 119 84 111 84 100
+       L84 50
+       L62 50
+       Z"
+    fill="url(#jikklo-grad)"
+  />
+  <defs>
+    <linearGradient id="jikklo-grad" x1="24" y1="30" x2="102" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#27E0FF" />
+      <stop offset="1" stop-color="#12D9C5" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jikklo Energy — JIKKLO</title>
+  <meta name="description" content="Carburant, huiles moteur, lubrifiants et accessoires automobiles à Bukavu." />
+  <link rel="canonical" href="https://jikklo.com/energy.html" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <h1>Jikklo Energy</h1>
+      <p>Carburant, huiles moteur, lubrifiants et accessoires automobiles — prix toujours à jour.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">Produits Energy</h2>
+      <p class="section-sub">Le prix affiché ici est toujours celui configuré dans JIKKLO OS — jamais codé en dur.</p>
+      <div id="energy-grid" class="product-grid">
+        <p class="empty-state">Chargement…</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    async function init() {
+      const grid = document.getElementById("energy-grid");
+      try {
+        const res = await window.jikkloApi.get("/api/public/products?activity=energy");
+        const products = res.products || [];
+        if (products.length === 0) {
+          grid.innerHTML = '<p class="empty-state">Aucun produit Energy publié pour le moment.</p>';
+          return;
+        }
+        grid.innerHTML = products.map(p => `
+          <a href="/product/?id=${p.id}" class="product-card">
+            <div class="thumb">Image</div>
+            <div class="body">
+              <div class="name">${p.name}</div>
+              <div class="price">${window.formatMoney(p.sale_price, p.currency)} <span style="font-size:11px;font-weight:400">/ ${p.unit}</span></div>
+              <div class="stock-tag ${p.stock_quantity <= 0 ? 'out' : ''}">${p.stock_quantity > 0 ? 'Disponible' : 'Rupture de stock'}</div>
+            </div>
+          </a>
+        `).join("");
+      } catch (e) {
+        grid.innerHTML = '<p class="empty-state">Impossible de charger le catalogue pour le moment.</p>';
+      }
+    }
+    init();
+  </script>
+</body>
+</html>

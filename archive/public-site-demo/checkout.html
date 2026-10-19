@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Finaliser la commande — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container">
+      <h2 class="section-title">Finaliser la commande</h2>
+      <p class="section-sub">Le prix, le stock et le total sont recalculés par le serveur — jamais fait confiance à ce que ton navigateur envoie.</p>
+      <div id="checkout-root"></div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    const root = document.getElementById("checkout-root");
+    const cart = getCart();
+
+    if (cart.length === 0) {
+      root.innerHTML = '<p class="empty-state">Ton panier est vide.</p>';
+    } else {
+      root.innerHTML = `
+        <div id="form-wrap" class="form-card" style="max-width:520px">
+          <div id="checkout-error"></div>
+          <form id="checkout-form">
+            <div class="field">
+              <label>Nom complet</label>
+              <input type="text" id="customerName" required />
+            </div>
+            <div class="field">
+              <label>Téléphone</label>
+              <input type="tel" id="customerPhone" required placeholder="+243..." />
+            </div>
+            <div class="field">
+              <label>Mode de livraison</label>
+              <select id="deliveryMode">
+                <option value="pickup">Retrait sur place</option>
+                <option value="delivery">Livraison</option>
+              </select>
+            </div>
+            <div class="field" id="address-field" style="display:none">
+              <label>Adresse de livraison</label>
+              <input type="text" id="deliveryAddress" />
+            </div>
+            <div class="field">
+              <label>Notes (optionnel)</label>
+              <textarea id="notes" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-accent" style="width:100%">Confirmer la commande</button>
+          </form>
+        </div>
+        <div id="result-wrap"></div>
+      `;
+
+      document.getElementById("deliveryMode").addEventListener("change", (e) => {
+        document.getElementById("address-field").style.display = e.target.value === "delivery" ? "block" : "none";
+      });
+
+      document.getElementById("checkout-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const errorBox = document.getElementById("checkout-error");
+        errorBox.innerHTML = "";
+
+        const payload = {
+          customerName: document.getElementById("customerName").value,
+          customerPhone: document.getElementById("customerPhone").value,
+          items: cart.map((i) => ({ productId: i.productId, quantity: i.quantity })),
+          deliveryMode: document.getElementById("deliveryMode").value,
+          deliveryAddress: document.getElementById("deliveryAddress").value || undefined,
+          notes: document.getElementById("notes").value || undefined,
+        };
+
+        try {
+          const res = await window.jikkloApi.post("/api/orders/public/create", payload);
+          clearCart();
+          document.getElementById("form-wrap").style.display = "none";
+          document.getElementById("result-wrap").innerHTML = `
+            <div class="success-box">
+              Commande <strong>${res.orderNumber}</strong> confirmée — total : ${window.formatMoney(res.total, res.currency)}.
+            </div>
+            <div class="btn-group">
+              <a href="https://wa.me/?text=${encodeURIComponent(res.whatsappMessage)}" target="_blank" class="btn btn-accent">
+                Envoyer le récapitulatif sur WhatsApp
+              </a>
+              <a href="/track.html?order=${res.orderNumber}" class="btn btn-navy">Suivre ma commande</a>
+            </div>
+            ${!res.whatsappConfigured ? '<p style="font-size:12px;color:#6B7A87;margin-top:10px">(L\'envoi WhatsApp automatique n\'est pas encore configuré côté JIKKLO — utilise le bouton ci-dessus.)</p>' : ''}
+          `;
+        } catch (err) {
+          errorBox.innerHTML = `<div class="error-box">${err.message}</div>`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

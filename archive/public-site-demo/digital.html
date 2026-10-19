@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jikklo Digital — JIKKLO</title>
+  <meta name="description" content="Services numériques JIKKLO." />
+  <link rel="canonical" href="https://jikklo.com/digital.html" />
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <h1>Jikklo Digital</h1>
+      <p>Notre branche services numériques, pensée pour évoluer avec les besoins du marché local.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <h2 class="section-title">Services disponibles</h2>
+      <div id="digital-grid">
+        <p class="empty-state">Chargement…</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    async function init() {
+      const grid = document.getElementById("digital-grid");
+      try {
+        const res = await window.jikkloApi.get("/api/public/products?activity=digital");
+        const products = res.products || [];
+        if (products.length === 0) {
+          grid.innerHTML = '<p class="empty-state">Aucun service Digital n\'est encore publié — cette activité est en cours de construction.</p>';
+          return;
+        }
+        grid.innerHTML = `<div class="product-grid">${products.map(p => `
+          <a href="/product/?id=${p.id}" class="product-card">
+            <div class="thumb">Image</div>
+            <div class="body">
+              <div class="name">${p.name}</div>
+              <div class="price">${window.formatMoney(p.sale_price, p.currency)}</div>
+            </div>
+          </a>
+        `).join("")}</div>`;
+      } catch (e) {
+        grid.innerHTML = '<p class="empty-state">Impossible de charger les services pour le moment.</p>';
+      }
+    }
+    init();
+  </script>
+</body>
+</html>

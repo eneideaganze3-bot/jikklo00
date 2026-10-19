@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon compte — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container" id="account-root">
+      <p class="empty-state">Chargement…</p>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    async function init() {
+      const root = document.getElementById("account-root");
+      let customer;
+      try {
+        const meRes = await window.jikkloApi.get("/api/customer/me");
+        customer = meRes.customer;
+      } catch (e) {
+        window.location.href = "/login.html";
+        return;
+      }
+
+      const ordersRes = await window.jikkloApi.get("/api/customer/orders").catch(() => ({ orders: [] }));
+      const orders = ordersRes.orders || [];
+
+      root.innerHTML = `
+        <h2 class="section-title">Bonjour, ${customer.full_name}</h2>
+        <p class="section-sub">${customer.phone}${customer.email ? " · " + customer.email : ""}</p>
+
+        <h3 style="font-size:16px;color:var(--navy);margin-top:32px">Mes commandes</h3>
+        ${orders.length === 0
+          ? '<p class="empty-state">Tu n\'as encore passé aucune commande.</p>'
+          : orders.map(o => `
+              <div class="cart-row">
+                <div class="info">
+                  <div class="name">${o.order_number}</div>
+                  <div style="font-size:12px;color:#6B7A87">${new Date(o.created_at).toLocaleDateString("fr-FR")} — ${o.status}</div>
+                </div>
+                <div style="font-weight:600">${window.formatMoney(o.total, o.currency)}</div>
+              </div>
+            `).join("")
+        }
+
+        <button id="logout-btn" class="btn btn-outline" style="color:var(--navy);border-color:#D9E1E6;margin-top:24px">Se déconnecter</button>
+      `;
+
+      document.getElementById("logout-btn").addEventListener("click", async () => {
+        await window.jikkloApi.post("/api/customer/logout");
+        window.location.href = "/";
+      });
+    }
+    init();
+  </script>
+</body>
+</html>

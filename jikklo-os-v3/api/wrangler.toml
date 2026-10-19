@@ -1,0 +1,49 @@
+name = "jikklo-api"
+account_id = "b3a0785ba3c5830f24b4368c1a67cc88"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+# ---------------------------------------------------------------------
+# Base de données D1
+# ---------------------------------------------------------------------
+# 1. Créer la base : wrangler d1 create jikklo-db
+# 2. Copier le "database_id" retourné ci-dessous
+[[d1_databases]]
+binding = "DB"
+database_name = "jikklo-db"
+database_id = "52deaf9d-8878-4ae3-8196-25074e71c927"
+migrations_dir = "../database/migrations"
+
+# ---------------------------------------------------------------------
+# Stockage des images produits (R2) — règle #24/#39 V2.
+# Décommenter une fois le bucket créé : wrangler r2 bucket create jikklo-assets
+# Sans ce binding, /api/admin/media/upload répond honnêtement 501 (non
+# configuré) plutôt que de simuler un upload qui ne fonctionne pas.
+# ---------------------------------------------------------------------
+# [[r2_buckets]]
+# binding = "ASSETS"
+# bucket_name = "jikklo-assets"
+
+# ---------------------------------------------------------------------
+# Route custom : api.jikklo.com
+# À activer une fois le domaine jikklo.com actif sur ce compte Cloudflare.
+# ---------------------------------------------------------------------
+# routes = [
+#   { pattern = "api.jikklo.com/*", zone_name = "jikklo.com" }
+# ]
+
+# ---------------------------------------------------------------------
+# Secrets — NE JAMAIS mettre de vraies valeurs ici. Utiliser :
+#   wrangler secret put JWT_SECRET
+#   wrangler secret put WHATSAPP_API_TOKEN
+#   wrangler secret put WHATSAPP_PHONE_NUMBER_ID
+# ---------------------------------------------------------------------
+[vars]
+ENVIRONMENT = "production"
+
+# NOTE sur le rate limiting (règle #35) : la protection en mémoire dans
+# src/index.ts est un filet basique, pas une protection de production. Pour
+# une vraie protection, ajouter des règles natives dans le Dashboard
+# Cloudflare : Security → WAF → Rate limiting rules (gratuit jusqu'à un
+# certain volume, appliqué au niveau du edge, fiable même à travers
+# plusieurs instances de Worker).

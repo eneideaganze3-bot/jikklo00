@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+  <script>
+    // Anti-flash de thème : applique le thème mémorisé avant le premier rendu.
+    (function () {
+      try {
+        var t = localStorage.getItem("jikklo_theme");
+        document.documentElement.setAttribute("data-theme", (t === "light" || t === "auto") ? t : "dark");
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title data-i18n-title="meta.energy.title">JIKKLO</title>
+  <meta name="description"  data-i18n-content="meta.energy.desc" content="" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://jikklo.com/energy.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="JIKKLO" />
+  <meta property="og:title" content="" data-i18n-content="meta.energy.title" />
+  <meta property="og:description" content="" data-i18n-content="meta.energy.desc" />
+  <meta property="og:url" content="https://jikklo.com/energy.html" />
+  <meta property="og:image" content="https://jikklo.com/assets/images/og-image.png" />
+  <meta property="og:locale" content="en_US" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="" data-i18n-content="meta.energy.title" />
+  <meta name="twitter:description" content="" data-i18n-content="meta.energy.desc" />
+  <meta name="twitter:image" content="https://jikklo.com/assets/images/og-image.png" />
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="theme-color" content="#071A2B" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head><body>
+  <a href="#main" class="skip-link" data-i18n="common.skipLink">Skip to content</a>
+
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="navbar-brand" aria-label="JIKKLO — Home" data-i18n-aria="nav.home">
+        <span class="brand-logo-swap" data-logo-swap>
+            <svg class="logo-draw" viewBox="0 0 160 160" width="34" height="34" aria-hidden="true">
+  <path d="M78 46 L118 20 L118 104 C118 128 100 142 76 142 C56 142 40 132 32 114 L56 102 C60 114 68 121 78 121 C90 121 98 113 98 100 L98 42 L78 42 Z" fill="#FFFFFF" opacity="0.94" stroke="#FFFFFF" stroke-width="0"/>
+  <path d="M62 56 L102 30 L102 106 C102 128 86 140 64 140 C46 140 31 130 24 114 L46 103 C50 113 57 119 66 119 C77 119 84 111 84 100 L84 50 L62 50 Z" fill="url(#navgrad)" stroke="none"/>
+  <defs><linearGradient id="navgrad" x1="24" y1="30" x2="102" y2="140" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#27E0FF"/><stop offset="1" stop-color="#12D9C5"/></linearGradient></defs>
+</svg>
+            <span style="font-family:var(--font-display);font-weight:800;font-size:1.15rem;color:#fff;letter-spacing:-0.01em;">JIKKLO</span>
+          </span>
+      </a>
+
+      <nav class="navbar-links" aria-label="Primary">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="products.html" data-i18n="nav.shop">Shop</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="energy.html" data-i18n="nav.energy">Energy</a>
+        <a href="digital.html" data-i18n="nav.digital">Digital</a>
+        <a href="vision.html" data-i18n="nav.vision">Vision</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      </nav>
+
+      <a href="account.html" class="cart-icon-link" aria-label="Mon compte" title="Mon compte" style="margin-right:4px;">
+        <svg class="icon-20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c1.4-4 4.2-6 7.5-6s6.1 2 7.5 6"/></svg>
+      </a>
+
+      <a href="cart.html" class="cart-icon-link" aria-label="Cart">
+        <svg class="icon-20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2l2.6 12.6a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21.5 7H6"/></svg>
+        <span class="cart-count-badge" data-cart-count hidden>0</span>
+      </a>
+
+      <div class="lang-dropdown">
+        <button type="button" class="lang-toggle" data-lang-toggle aria-haspopup="true" aria-expanded="false" aria-label="Change language">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.5 2.7 3.8 6 3.8 9.5s-1.3 6.8-3.8 9.5c-2.5-2.7-3.8-6-3.8-9.5S9.5 5.2 12 2.5z"/></svg>
+          <span data-lang-label>FR</span>
+        </button>
+        <ul class="lang-menu" role="menu">
+          <li role="none"><button type="button" role="menuitem" data-lang="fr">Français</button></li>
+          <li role="none"><button type="button" role="menuitem" data-lang="en">English</button></li>
+          <li role="none"><button type="button" role="menuitem" data-lang="sw">Kiswahili</button></li>
+          <li role="none"><button type="button" role="menuitem" data-lang="ln">Lingála</button></li>
+          <li role="none"><button type="button" role="menuitem" data-lang="es">Español</button></li>
+          <li role="none"><button type="button" role="menuitem" data-lang="pt">Português</button></li>
+        </ul>
+      </div>
+
+      <a href="contact.html" class="btn btn-primary navbar-cta" data-i18n="nav.cta">Let's Talk</a>
+
+      <button type="button" class="navbar-toggle" aria-label="Open menu" data-i18n-aria="common.openMenu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg class="icon-22 icon-menu" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <span class="icon-close" style="display:none;"><svg class="icon-22" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+      </button>
+    </div>
+
+    <div class="mobile-menu" id="mobile-menu">
+      <div class="mobile-menu-inner">
+        <ul>
+          <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+          <li><a href="products.html" data-i18n="nav.shop">Shop</a></li>
+          <li><a href="about.html" data-i18n="nav.about">About</a></li>
+          <li><a href="energy.html" data-i18n="nav.energy">Energy</a></li>
+          <li><a href="digital.html" data-i18n="nav.digital">Digital</a></li>
+          <li><a href="vision.html" data-i18n="nav.vision">Vision</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+          <li><a href="account.html" class="mobile-cart-link">
+              <svg class="icon-18" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M4.5 20c1.4-4 4.2-6 7.5-6s6.1 2 7.5 6"/></svg>
+              <span>Mon compte</span>
+            </a></li>
+          <li>
+            <a href="cart.html" class="mobile-cart-link">
+              <svg class="icon-18" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2l2.6 12.6a2 2 0 0 0 2 1.6h8.4a2 2 0 0 0 2-1.6L21.5 7H6"/></svg>
+              <span data-i18n="cart.pageTitle">Your cart</span>
+              <span class="cart-count-badge" data-cart-count hidden>0</span>
+            </a>
+          </li>
+          <li><a href="contact.html" class="btn btn-primary btn-block" data-i18n="nav.cta">Let's Talk</a></li>
+        </ul>
+        <div class="lang-row-mobile" role="group" aria-label="Language">
+          <button type="button" data-lang="fr">Français</button>
+          <button type="button" data-lang="en">English</button>
+          <button type="button" data-lang="sw">Kiswahili</button>
+          <button type="button" data-lang="ln">Lingála</button>
+          <button type="button" data-lang="es">Español</button>
+          <button type="button" data-lang="pt">Português</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+
+    <section style="padding-top:150px;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%, rgba(18,217,197,.10), transparent);pointer-events:none;"></div>
+      <div class="container reveal" style="position:relative;">
+        <div class="icon-badge solid" style="margin-bottom:20px;"><svg class="icon-20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+        <span class="eyebrow" data-i18n="energy.eyebrow">JIKKLO Energy</span>
+        <h1 class="section-title" style="font-size:clamp(2.2rem,5vw,3.4rem);" data-i18n="energy.title">JIKKLO Energy</h1>
+        <p class="section-lead" data-i18n="energy.lead">Reliable energy. Built around trust.</p>
+      </div>
+    </section>
+
+    <!-- ===== CARBURANTS DISPONIBLES (prix en direct depuis JIKKLO API) ===== -->
+    <section style="padding-top:0;">
+      <div class="container">
+        <span class="eyebrow reveal" data-i18n="energy.pageEyebrow">JIKKLO Energy</span>
+        <h2 class="section-title reveal" style="font-size:1.8rem;margin-top:16px;" data-i18n="energy.pageTitle">Available fuels</h2>
+        <p class="section-lead reveal" data-i18n="energy.pageLead">Prices updated regularly. Choose a quantity and order directly via WhatsApp.</p>
+
+        <div class="fuel-grid" data-fuel-grid></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="reveal" style="display:flex;align-items:center;gap:12px;">
+          <span class="badge badge-live"><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> <span data-i18n="common.badge.availableToday">Available today</span></span>
+        </div>
+        <h2 class="section-title reveal" style="font-size:1.8rem;margin-top:16px;" data-i18n="energy.today.title">Today</h2>
+        <p class="section-lead reveal" data-i18n="energy.today.text">A proximity-first energy business, focused on doing the essentials reliably.</p>
+
+        <div class="grid-2" style="margin-top:44px;">
+          <div class="card reveal">
+            <div class="icon-badge"><svg class="icon-20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"/><path d="M4 12h10"/><path d="M14 8h2.5L19 10.5V17a1.5 1.5 0 0 1-3 0v-3a1 1 0 0 0-1-1h-1"/><path d="M2 21h14"/></svg></div>
+            <h3 style="margin-top:22px;font-size:1.25rem;" data-i18n="energy.fuel.title">Fuel</h3>
+            <p style="margin-top:12px;color:var(--text-secondary);" data-i18n="energy.fuel.text">Quality fuel supply, dispensed reliably for everyday needs.</p>
+          </div>
+          <div class="card reveal delay-1">
+            <div class="icon-badge"><svg class="icon-20" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg></div>
+            <h3 style="margin-top:22px;font-size:1.25rem;" data-i18n="energy.oils.title">Engine oils &amp; lubricants</h3>
+            <p style="margin-top:12px;color:var(--text-secondary);" data-i18n="energy.oils.text">A range of engine oils and lubricants to keep vehicles running smoothly.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-alt">
+      <div class="container">
+        <div class="reveal" style="display:flex;align-items:center;gap:12px;">
+          <span class="badge badge-soon"><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M15.5 8.5 13 13l-4.5 2.5L11 11l4.5-2.5z"/></svg> <span data-i18n="common.badge.ourVision">Our vision</span></span>
+        </div>
+        <h2 class="section-title reveal" style="font-size:1.8rem;margin-top:16px;" data-i18n="energy.next.title">What's Next</h2>
+        <p class="section-lead reveal" data-i18n="energy.next.text">JIKKLO Energy is designed to grow...</p>
+
+        <div class="grid-3" style="margin-top:44px;">
+          <div class="card reveal">
+            <span class="badge badge-soon" data-i18n="common.badge.comingSoon">Coming soon</span>
+            <h3 style="margin-top:18px;font-size:1.1rem;" data-i18n="energy.accessories.title">Automotive accessories</h3>
+            <p style="margin-top:10px;font-size:.92rem;color:var(--text-secondary);" data-i18n="energy.accessories.text">A curated selection of accessories for everyday vehicle needs.</p>
+          </div>
+          <div class="card reveal delay-1">
+            <span class="badge badge-soon" data-i18n="common.badge.comingSoon">Coming soon</span>
+            <h3 style="margin-top:18px;font-size:1.1rem;" data-i18n="energy.spareparts.title">Spare parts</h3>
+            <p style="margin-top:10px;font-size:.92rem;color:var(--text-secondary);" data-i18n="energy.spareparts.text">Reliable spare parts, sourced and offered with the same standard of trust.</p>
+          </div>
+          <div class="card reveal delay-2">
+            <span class="badge badge-soon" data-i18n="common.badge.comingSoon">Coming soon</span>
+            <h3 style="margin-top:18px;font-size:1.1rem;" data-i18n="energy.mobility.title">Mobility solutions</h3>
+            <p style="margin-top:10px;font-size:.92rem;color:var(--text-secondary);" data-i18n="energy.mobility.text">Additional services built around energy and everyday mobility.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="text-center">
+      <div class="container reveal">
+        <h2 class="section-title mx-auto" style="max-width:520px;" data-i18n="energy.ctaTitle">Questions about JIKKLO Energy?</h2>
+        <a href="contact.html" class="btn btn-primary" style="margin-top:24px;"><span data-i18n="energy.ctaBtn">Contact Energy</span> <svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </section>
+
+    </main>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="navbar-brand" aria-label="JIKKLO — Home" data-i18n-aria="nav.home">
+            <span class="brand-logo-swap" data-logo-swap>
+            <svg class="logo-draw" viewBox="0 0 160 160" width="34" height="34" aria-hidden="true">
+  <path d="M78 46 L118 20 L118 104 C118 128 100 142 76 142 C56 142 40 132 32 114 L56 102 C60 114 68 121 78 121 C90 121 98 113 98 100 L98 42 L78 42 Z" fill="#FFFFFF" opacity="0.94" stroke="#FFFFFF" stroke-width="0"/>
+  <path d="M62 56 L102 30 L102 106 C102 128 86 140 64 140 C46 140 31 130 24 114 L46 103 C50 113 57 119 66 119 C77 119 84 111 84 100 L84 50 L62 50 Z" fill="url(#navgrad)" stroke="none"/>
+  <defs><linearGradient id="navgrad" x1="24" y1="30" x2="102" y2="140" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#27E0FF"/><stop offset="1" stop-color="#12D9C5"/></linearGradient></defs>
+</svg>
+            <span style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;color:#fff;">JIKKLO</span>
+          </span>
+          </a>
+          <p class="footer-tagline">Driven by Trust</p>
+          <div class="version-badge">
+            <span class="tag" data-config="VERSION">v0.01</span>
+            <span data-i18n="footer.versionNote">Institutional site.</span>
+          </div>
+          <div class="social-row">
+            <a href="#" data-social="facebook" class="social-btn" aria-label="Facebook" hidden><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.6h2.6l.4-3h-3v-1.9c0-.9.3-1.5 1.6-1.5h1.6V4.3c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4V10.4H8v3h2.5V21h3Z"/></svg></a>
+            <a href="#" data-social="instagram" class="social-btn" aria-label="Instagram" hidden><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg></a>
+            <a href="#" data-social="linkedin" class="social-btn" aria-label="LinkedIn" hidden><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4ZM5 10.5h3.9V20H5v-9.5ZM13 10.5h3.7v1.4c.5-.9 1.7-1.6 3.1-1.6 3.1 0 3.2 2 3.2 4.6V20h-3.7v-4.6c0-1.1 0-2.5-1.5-2.5s-1.8 1.2-1.8 2.4V20H13v-9.5Z"/></svg></a>
+            <a href="#" data-social="tiktok" class="social-btn" aria-label="TikTok" hidden><svg class="icon-16" aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.4 2 1.8 3.5 3.9 3.8v3c-1.4 0-2.7-.4-3.9-1.2v6.6c0 3.3-2.6 5.8-5.9 5.8S4.7 18.5 4.7 15.2c0-3.2 2.6-5.8 5.8-5.8.4 0 .8 0 1.1.1v3.1a2.9 2.9 0 0 0-1.1-.2 2.9 2.9 0 1 0 2.9 2.9V3h3.1Z"/></svg></a>
+          </div>
+        </div>
+
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h4 data-i18n="footer.navigate">Navigate</h4>
+            <ul>
+              <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+              <li><a href="products.html" data-i18n="nav.shop">Shop</a></li>
+              <li><a href="about.html" data-i18n="nav.about">About</a></li>
+              <li><a href="energy.html" data-i18n="nav.energy">Energy</a></li>
+              <li><a href="digital.html" data-i18n="nav.digital">Digital</a></li>
+              <li><a href="vision.html" data-i18n="nav.vision">Vision</a></li>
+              <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 data-i18n="footer.company">Company</h4>
+            <ul>
+              <li><a href="about.html" data-i18n="footer.ourStory">Our story</a></li>
+              <li><a href="vision.html" data-i18n="footer.ourVision">Our vision</a></li>
+              <li><a href="privacy.html" data-i18n="footer.privacy">Privacy policy</a></li>
+              <li><a href="terms.html" data-i18n="footer.terms">Terms of use</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4 data-i18n="footer.contact">Contact</h4>
+            <ul>
+              <li><a href="mailto:contact@jikklo.com" data-config-href="EMAIL" data-config="EMAIL">contact@jikklo.com</a></li>
+              <li><span data-config="LOCATION">Bukavu, Democratic Republic of the Congo</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; <span data-current-year>2026</span> JIKKLO. <span data-i18n="footer.rights">All rights reserved.</span></span>
+        <div class="legal-links">
+          <a href="privacy.html" data-i18n="footer.privacyShort">Privacy</a>
+          <a href="terms.html" data-i18n="footer.termsShort">Terms</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="js/config.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/catalog-data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/whatsapp.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/energy.js"></script>
+</body>
+</html>

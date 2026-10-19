@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Produit — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+  <style>
+    .product-detail { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 768px) { .product-detail { grid-template-columns: 1fr 1fr; } }
+    .product-detail .gallery { aspect-ratio: 1; background: #EEF2F5; border-radius: 16px; display:flex; align-items:center; justify-content:center; color:#6B7A87; }
+    .product-detail h1 { font-size: 24px; color: var(--navy); margin: 0 0 8px; }
+    .product-detail .price { font-size: 22px; font-weight: 700; margin: 10px 0; }
+    .qty-row { display: flex; align-items: center; gap: 10px; margin: 16px 0; }
+    .qty-row input { width: 70px; padding: 8px; border: 1px solid #D9E1E6; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container" id="product-root">
+      <p class="empty-state">Chargement…</p>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("id");
+
+    async function init() {
+      const root = document.getElementById("product-root");
+      if (!productId) {
+        root.innerHTML = '<p class="empty-state">Produit introuvable.</p>';
+        return;
+      }
+      try {
+        const res = await window.jikkloApi.get(`/api/public/products/${productId}`);
+        const p = res.product;
+        document.title = `${p.name} — JIKKLO`;
+        const allowDecimal = p.unit === "L" || p.unit === "kg";
+        const inStock = p.stock_quantity === null || p.stock_quantity > 0;
+
+        root.innerHTML = `
+          <div class="product-detail">
+            <div class="gallery">Image</div>
+            <div>
+              <h1>${p.name}</h1>
+              <div class="price">${window.formatMoney(p.sale_price, p.currency)} <span style="font-size:13px;color:#6B7A87">/ ${p.unit}</span></div>
+              <p style="color:#6B7A87;font-size:14px">${p.description || "Aucune description fournie."}</p>
+              <p style="font-size:13px;color:${inStock ? '#1E7A34' : '#C0392B'}">
+                ${inStock ? `En stock (${p.stock_quantity ?? '—'} ${p.unit})` : 'Rupture de stock'}
+              </p>
+
+              ${inStock ? `
+                <div class="qty-row">
+                  <label for="qty">Quantité</label>
+                  <input type="number" id="qty" value="1" min="${allowDecimal ? '0.5' : '1'}" step="${allowDecimal ? '0.5' : '1'}" />
+                </div>
+                <div class="btn-group">
+                  <button class="btn btn-navy" id="add-cart-btn">Ajouter au panier</button>
+                  <button class="btn btn-accent" id="whatsapp-btn">Commander via WhatsApp</button>
+                </div>
+              ` : `<p class="error-box">Ce produit est actuellement indisponible.</p>`}
+            </div>
+          </div>
+        `;
+
+        document.getElementById("add-cart-btn")?.addEventListener("click", () => {
+          const qty = Number(document.getElementById("qty").value) || 1;
+          addToCart(p.id, qty);
+          alert("Ajouté au panier !");
+        });
+
+        document.getElementById("whatsapp-btn")?.addEventListener("click", async () => {
+          const qty = Number(document.getElementById("qty").value) || 1;
+          try {
+            const settingsRes = await window.jikkloApi.get("/api/settings/public");
+            const lineTotal = qty * p.sale_price;
+            const message = `JIKKLO — Intention de commande\n\n1. ${p.name} — ${qty} ${p.unit}\nPrix unitaire : ${p.sale_price} ${p.currency}\nSous-total : ${lineTotal} ${p.currency}\n\n(Cette commande n'est pas encore confirmée — merci de finaliser avec l'équipe JIKKLO.)`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
+          } catch (e) {
+            alert("WhatsApp n'est pas configuré pour le moment.");
+          }
+        });
+      } catch (e) {
+        root.innerHTML = '<p class="empty-state">Ce produit est introuvable ou n\'est plus disponible.</p>';
+      }
+    }
+    init();
+  </script>
+</body>
+</html>

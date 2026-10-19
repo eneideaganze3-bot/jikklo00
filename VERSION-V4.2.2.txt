@@ -1,0 +1,3 @@
+JIKKLO V4.2.2
+Correctifs: paiement ciblé, validation track_stock, validation profil client, documentation deployment unifiée.
+Build npm: à valider dans Codespaces après npm install.

@@ -1,0 +1,8 @@
+JIKKLO — CONFIGURATION WHATSAPP
+
+Le numéro WhatsApp Business JIKKLO est déjà configuré dans js/config.js.
+
+Numéro configuré : 243904067863
+
+Le bouton « Confirmer la commande » ouvre directement WhatsApp avec le
+message complet de la commande. Le panier n'est pas vidé avant la navigation.

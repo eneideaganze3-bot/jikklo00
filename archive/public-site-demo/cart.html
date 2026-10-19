@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panier — JIKKLO</title>
+  <link rel="stylesheet" href="/assets/css/style.css" />
+</head>
+<body>
+  <section style="padding-top:32px">
+    <div class="container">
+      <h2 class="section-title">Mon panier</h2>
+      <div id="cart-root"><p class="empty-state">Chargement…</p></div>
+    </div>
+  </section>
+
+  <script src="/assets/js/api.js"></script>
+  <script src="/assets/js/cart.js"></script>
+  <script src="/assets/js/layout.js"></script>
+  <script>
+    // Le panier local ne contient que { productId, quantity }. On relit ici
+    // le prix, le nom et le stock ACTUELS depuis l'API — jamais mis en cache
+    // (règle #52). Le serveur revalidera de toute façon tout au checkout.
+    async function render() {
+      const root = document.getElementById("cart-root");
+      const cart = getCart();
+      if (cart.length === 0) {
+        root.innerHTML = `
+          <p class="empty-state">Ton panier est vide.</p>
+          <div style="text-align:center"><a href="/shop.html" class="btn btn-navy">Voir la boutique</a></div>
+        `;
+        return;
+      }
+
+      let products;
+      try {
+        const res = await window.jikkloApi.get("/api/public/products");
+        products = res.products || [];
+      } catch (e) {
+        root.innerHTML = '<p class="empty-state">Impossible de charger le panier pour le moment.</p>';
+        return;
+      }
+
+      let subtotal = 0;
+      let currency = "CDF";
+      const rows = cart.map((item) => {
+        const p = products.find((prod) => prod.id === item.productId);
+        if (!p) return "";
+        const lineTotal = p.sale_price * item.quantity;
+        subtotal += lineTotal;
+        currency = p.currency;
+        return `
+          <div class="cart-row">
+            <div class="thumb"></div>
+            <div class="info">
+              <div class="name">${p.name}</div>
+              <div style="font-size:13px;color:#6B7A87">${window.formatMoney(p.sale_price, p.currency)} / ${p.unit}</div>
+              <div class="qty-control">
+                <button onclick="changeQty('${p.id}', ${item.quantity - 1})">−</button>
+                <span>${item.quantity}</span>
+                <button onclick="changeQty('${p.id}', ${item.quantity + 1})">+</button>
+                <button onclick="removeFromCart('${p.id}'); render();" style="color:#C0392B;margin-left:10px">Retirer</button>
+              </div>
+            </div>
+            <div style="font-weight:600">${window.formatMoney(lineTotal, p.currency)}</div>
+          </div>
+        `;
+      }).join("");
+
+      root.innerHTML = `
+        ${rows}
+        <div class="cart-summary">
+          <div class="row"><span>Sous-total</span><span>${window.formatMoney(subtotal, currency)}</span></div>
+          <div class="row"><span>Livraison</span><span>Calculée au checkout</span></div>
+          <div class="row total"><span>Total estimé</span><span>${window.formatMoney(subtotal, currency)}</span></div>
+        </div>
+        <div class="btn-group" style="margin-top:16px">
+          <a href="/shop.html" class="btn btn-outline" style="color:var(--navy);border-color:#D9E1E6">Continuer mes achats</a>
+          <a href="/checkout.html" class="btn btn-accent">Passer la commande</a>
+        </div>
+      `;
+    }
+
+    function changeQty(productId, newQty) {
+      updateCartQuantity(productId, newQty);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
