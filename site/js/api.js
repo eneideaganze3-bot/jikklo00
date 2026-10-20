@@ -31,7 +31,7 @@
     }
     var host = window.location.hostname;
     var isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
-    return isLocal ? "http://localhost:8787" : "https://api.jikklo.com";
+    return isLocal ? "http://localhost:8787" : "https://jikklo00.eneideaganze3.workers.dev";
   }
 
   var API_BASE = resolveApiBase();
