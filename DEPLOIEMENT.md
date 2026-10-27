@@ -1,4 +1,4 @@
-# JIKKLO V4.2 — Guide de déploiement (iPhone + GitHub Codespaces)
+# JIKKLO V4.2 — Guide de déploiement (iPhone + GitHub Codespaces) n
 
 Tout se fait dans le terminal d'un Codespace. Copie-colle les commandes **dans
 l'ordre**, sans rien modifier. Aucun fichier de configuration à éditer à la
