@@ -10,7 +10,7 @@ compatibility_date = "2025-01-01"
 # 2. Copier le "database_id" retourné ci-dessous
 [[d1_databases]]
 binding = "DB"
-database_name = "jikklo-db"
+database_name = "jikklo"
 database_id = "52deaf9d-8878-4ae3-8196-25074e71c927"
 migrations_dir = "../database/migrations"
 
