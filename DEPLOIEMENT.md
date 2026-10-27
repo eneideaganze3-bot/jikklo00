@@ -6,7 +6,7 @@ main : l'Account ID et le `database_id` de `jikklo-db` sont déjà dans
 `jikklo-os-v3/api/wrangler.toml`.
 
 Toutes les commandes partent de la **racine du repo** (le dossier qui contient
-`site/`, `jikklo-os-v3/` et ce fichier). Si tu changes de dossier, reviens-y avec :
+`site/`, `jikklo-os-v3/` et ce fichier). Si tu changes  de dossier, reviens-y avec :
 
 ```bash
 cd /workspaces/$(basename "$PWD")   # ou : cd "$(git rev-parse --show-toplevel)"
