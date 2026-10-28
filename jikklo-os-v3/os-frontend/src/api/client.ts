@@ -3,7 +3,7 @@
 // (voir api/src/routes/auth.ts) — plus de token en localStorage, qui était
 // exposé aux attaques XSS. Toutes les requêtes envoient `credentials:
 // "include"` pour que le navigateur transmette automatiquement le cookie.
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8787";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "https://api.jikklo.com";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
