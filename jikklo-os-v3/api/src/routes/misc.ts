@@ -151,7 +151,16 @@ function stockStatus(quantity: number | null, minThreshold: number | null): "in-
   return "in-stock";
 }
 
-function toPublicProduct(row: PublicProductRow) {
+/** Transforme la clé R2 stockée en base (ex: products/prod_x/uuid.jpg) en URL
+ *  absolue servie par l'API (routes/media.ts). Une URL déjà complète (http/https)
+ *  est laissée telle quelle. */
+function publicImageUrl(origin: string, stored: string | null): string | null {
+  if (!stored) return null;
+  if (/^https?:\/\//i.test(stored)) return stored;
+  return `${origin}/api/public/media/${stored.split("/").map(encodeURIComponent).join("/")}`;
+}
+
+function toPublicProduct(row: PublicProductRow, origin: string) {
   return {
     id: row.id,
     sku: row.sku,
@@ -177,7 +186,7 @@ function toPublicProduct(row: PublicProductRow) {
     currency: row.currency,
     stockQuantity: row.stock_quantity,
     stockStatus: stockStatus(row.stock_quantity, row.min_threshold),
-    image: row.image_url || null,
+    image: publicImageUrl(origin, row.image_url),
     lastUpdated: row.price_updated_at,
   };
 }
@@ -210,7 +219,8 @@ publicCatalogRoutes.get("/products", async (c) => {
   query += " ORDER BY p.featured DESC, p.name";
 
   const result = await c.env.DB.prepare(query).bind(...bindings).all<PublicProductRow>();
-  return c.json({ products: (result.results ?? []).map(toPublicProduct) });
+  const origin = new URL(c.req.url).origin;
+  return c.json({ products: (result.results ?? []).map((row) => toPublicProduct(row, origin)) });
 });
 
 publicCatalogRoutes.get("/products/:id", async (c) => {
@@ -223,9 +233,10 @@ publicCatalogRoutes.get("/products/:id", async (c) => {
   const images = await c.env.DB
     .prepare("SELECT url, is_primary FROM product_images WHERE product_id = ? ORDER BY display_order")
     .bind(id).all<{ url: string; is_primary: number }>();
+  const origin = new URL(c.req.url).origin;
   return c.json({
-    product: toPublicProduct(row),
-    images: (images.results ?? []).map((img) => ({ url: img.url, isPrimary: !!img.is_primary })),
+    product: toPublicProduct(row, origin),
+    images: (images.results ?? []).map((img) => ({ url: publicImageUrl(origin, img.url) ?? "", isPrimary: !!img.is_primary })),
   });
 });
 
