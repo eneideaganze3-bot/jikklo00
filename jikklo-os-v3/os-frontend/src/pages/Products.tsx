@@ -1,6 +1,7 @@
-import { useEffect, useState, FormEvent } from "react";
+import { Fragment, useEffect, useState, FormEvent } from "react";
 import { api, ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { ProductPhotos } from "../components/ProductPhotos";
 
 type Product = {
   id: string;
@@ -31,6 +32,8 @@ export function Products() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [listError, setListError] = useState<string | null>(null);
+  const [photosFor, setPhotosFor] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [salePrice, setSalePrice] = useState("");
   const [unit, setUnit] = useState("unit");
@@ -63,6 +66,21 @@ export function Products() {
       setError(err instanceof ApiError ? err.message : "Erreur lors de la création.");
     }
   }
+
+  async function togglePublish(p: Product) {
+    setListError(null);
+    try {
+      await api.patch(`/api/admin/products/${p.id}`, {
+        status: p.status === "published" ? "draft" : "published",
+      });
+      load();
+    } catch (err) {
+      setListError(err instanceof ApiError ? err.message : "Impossible de modifier le statut.");
+    }
+  }
+
+  const canEdit = hasPermission("products.edit");
+  const canPhotos = hasPermission("media.upload");
 
   return (
     <div className="space-y-4">
@@ -144,6 +162,8 @@ export function Products() {
         </form>
       )}
 
+      {listError && <div className="text-sm text-red-600">{listError}</div>}
+
       <div className="bg-white border rounded-xl overflow-hidden">
         {products.length === 0 ? (
           <p className="text-sm text-slate-400 p-6 text-center">Aucun produit disponible.</p>
@@ -156,11 +176,13 @@ export function Products() {
                 <th className="px-4 py-2 font-medium">Prix</th>
                 <th className="px-4 py-2 font-medium">Stock</th>
                 <th className="px-4 py-2 font-medium">Statut</th>
+                {(canEdit || canPhotos) && <th className="px-4 py-2 font-medium">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="border-t">
+                <Fragment key={p.id}>
+                <tr className="border-t">
                   <td className="px-4 py-2">{p.name}</td>
                   <td className="px-4 py-2 text-slate-500">{p.category_name ?? "—"}</td>
                   <td className="px-4 py-2">
@@ -182,7 +204,37 @@ export function Products() {
                       {p.status}
                     </span>
                   </td>
+                  {(canEdit || canPhotos) && (
+                    <td className="px-4 py-2 space-x-3 whitespace-nowrap">
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => togglePublish(p)}
+                          className="text-xs text-jikklo-navy underline"
+                        >
+                          {p.status === "published" ? "Retirer du site" : "Publier"}
+                        </button>
+                      )}
+                      {canPhotos && (
+                        <button
+                          type="button"
+                          onClick={() => setPhotosFor(photosFor === p.id ? null : p.id)}
+                          className="text-xs text-jikklo-navy underline"
+                        >
+                          {photosFor === p.id ? "Fermer les photos" : "Photos"}
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
+                {photosFor === p.id && (
+                  <tr className="border-t bg-slate-50">
+                    <td colSpan={6} className="px-4 py-3">
+                      <ProductPhotos productId={p.id} />
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>
