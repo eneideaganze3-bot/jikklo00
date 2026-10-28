@@ -16,7 +16,7 @@ import { userRoutes } from "./routes/users";
 import { digitalRoutes } from "./routes/digital";
 import { supplierRoutes } from "./routes/suppliers";
 import { financeRoutes } from "./routes/finance";
-import { mediaRoutes } from "./routes/media";
+import { mediaRoutes, publicMediaRoutes } from "./routes/media";
 import { paymentMethodRoutes } from "./routes/paymentMethods";
 import { publicationRoutes } from "./routes/publications";
 import {
@@ -65,7 +65,15 @@ app.use("*", async (c, next) => {
   c.header("Permissions-Policy", "geolocation=(), camera=(), microphone=()");
   // L'API ne sert que du JSON — CSP restrictive par défaut, pas de risque
   // d'injection de script puisqu'aucun HTML n'est jamais rendu ici.
-  c.header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'");
+  // Les photos produit (GET /api/public/media/*) doivent pouvoir s'afficher
+  // aussi quand on ouvre leur adresse directement : seule `img-src 'self'`
+  // est ajoutée pour ce chemin, tout le reste reste interdit.
+  c.header(
+    "Content-Security-Policy",
+    c.req.path.startsWith("/api/public/media/")
+      ? "default-src 'none'; img-src 'self'; frame-ancestors 'none'"
+      : "default-src 'none'; frame-ancestors 'none'"
+  );
 });
 
 // ---------------------------------------------------------------------
@@ -81,6 +89,9 @@ app.use("*", async (c, next) => {
 // ---------------------------------------------------------------------
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 app.use("*", async (c, next) => {
+  // Les photos produit ne comptent pas dans la limite : une seule page du
+  // catalogue en charge des dizaines à la fois, et elles sont mises en cache.
+  if (c.req.path.startsWith("/api/public/media/")) return next();
   const ip = c.req.header("CF-Connecting-IP") ?? "unknown";
   const now = Date.now();
   const entry = requestCounts.get(ip);
@@ -119,6 +130,7 @@ app.route("/api/admin/publications", publicationRoutes);
 app.route("/api/admin/notifications", notificationRoutes);
 app.route("/api/admin/audit-logs", auditLogRoutes);
 app.route("/api/settings", settingsRoutes); // contient /public et /admin/*
+app.route("/api/public/media", publicMediaRoutes);
 app.route("/api/public", publicCatalogRoutes);
 app.route("/api/customer", customerAccountRoutes); // espace client public (register/login/me/orders)
 
