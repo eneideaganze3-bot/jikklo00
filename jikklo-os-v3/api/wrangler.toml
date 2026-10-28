@@ -20,9 +20,9 @@ migrations_dir = "../database/migrations"
 # Sans ce binding, /api/admin/media/upload répond honnêtement 501 (non
 # configuré) plutôt que de simuler un upload qui ne fonctionne pas.
 # ---------------------------------------------------------------------
-# [[r2_buckets]]
-# binding = "ASSETS"
-# bucket_name = "jikklo-assets"
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "jikklo-assets"
 
 # ---------------------------------------------------------------------
 # Route custom : api.jikklo.com
