@@ -164,7 +164,7 @@ export function Products() {
 
       {listError && <div className="text-sm text-red-600">{listError}</div>}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div className="bg-white border rounded-xl overflow-x-auto">
         {products.length === 0 ? (
           <p className="text-sm text-slate-400 p-6 text-center">Aucun produit disponible.</p>
         ) : (
@@ -176,14 +176,37 @@ export function Products() {
                 <th className="px-4 py-2 font-medium">Prix</th>
                 <th className="px-4 py-2 font-medium">Stock</th>
                 <th className="px-4 py-2 font-medium">Statut</th>
-                {(canEdit || canPhotos) && <th className="px-4 py-2 font-medium">Actions</th>}
               </tr>
             </thead>
             <tbody>
               {products.map((p) => (
                 <Fragment key={p.id}>
                 <tr className="border-t">
-                  <td className="px-4 py-2">{p.name}</td>
+                  <td className="px-4 py-2">
+                    <div>{p.name}</div>
+                    {(canEdit || canPhotos) && (
+                      <div className="mt-1 space-x-3 whitespace-nowrap">
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => togglePublish(p)}
+                            className="text-xs text-jikklo-navy underline"
+                          >
+                            {p.status === "published" ? "Retirer du site" : "Publier"}
+                          </button>
+                        )}
+                        {canPhotos && (
+                          <button
+                            type="button"
+                            onClick={() => setPhotosFor(photosFor === p.id ? null : p.id)}
+                            className="text-xs text-jikklo-navy underline"
+                          >
+                            {photosFor === p.id ? "Fermer les photos" : "Photos"}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-slate-500">{p.category_name ?? "—"}</td>
                   <td className="px-4 py-2">
                     {p.sale_price !== null ? `${p.sale_price.toLocaleString()} FC` : "—"}
@@ -204,32 +227,10 @@ export function Products() {
                       {p.status}
                     </span>
                   </td>
-                  {(canEdit || canPhotos) && (
-                    <td className="px-4 py-2 space-x-3 whitespace-nowrap">
-                      {canEdit && (
-                        <button
-                          type="button"
-                          onClick={() => togglePublish(p)}
-                          className="text-xs text-jikklo-navy underline"
-                        >
-                          {p.status === "published" ? "Retirer du site" : "Publier"}
-                        </button>
-                      )}
-                      {canPhotos && (
-                        <button
-                          type="button"
-                          onClick={() => setPhotosFor(photosFor === p.id ? null : p.id)}
-                          className="text-xs text-jikklo-navy underline"
-                        >
-                          {photosFor === p.id ? "Fermer les photos" : "Photos"}
-                        </button>
-                      )}
-                    </td>
-                  )}
                 </tr>
                 {photosFor === p.id && (
                   <tr className="border-t bg-slate-50">
-                    <td colSpan={6} className="px-4 py-3">
+                    <td colSpan={5} className="px-4 py-3">
                       <ProductPhotos productId={p.id} />
                     </td>
                   </tr>
