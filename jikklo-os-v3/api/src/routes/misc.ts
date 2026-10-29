@@ -300,11 +300,12 @@ publicCatalogRoutes.get("/publications", async (c) => {
     .bind(limit)
     .all<any>();
 
+  const origin = new URL(c.req.url).origin;
   const publications = (result.results ?? []).map((r) => ({
     id: r.id,
     title: r.title,
     body: r.body,
-    imageUrl: r.image_url,
+    imageUrl: publicImageUrl(origin, r.image_url),
     cta: r.cta_label ? { label: r.cta_label, url: r.cta_url } : null,
     priceOverride: r.price_override,
     publishedAt: r.published_at,

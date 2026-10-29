@@ -83,6 +83,64 @@ mediaRoutes.post("/upload", requirePermission("media.upload"), async (c) => {
   return c.json({ id: imageId, key, success: true }, 201);
 });
 
+// POST /api/admin/media/publication — envoie (ou remplace) l'image d'une
+// publication « Nouveautés Jikklo ». L'image est stockée dans R2 et sa clé est
+// enregistrée dans publications.image_url ; le site public la reçoit sous
+// forme d'URL complète (voir routes/misc.ts).
+mediaRoutes.post("/publication", requirePermission("publications.manage"), async (c) => {
+  if (!("ASSETS" in c.env) || !c.env.ASSETS) {
+    return c.json(
+      { error: "Le stockage d'images (R2) n'est pas configuré sur ce déploiement. Voir wrangler.toml." },
+      501
+    );
+  }
+
+  const user = c.get("user");
+  const formData = await c.req.formData();
+  const file = formData.get("file");
+  const publicationId = formData.get("publicationId");
+
+  if (!(file instanceof File)) return apiError(c, 400, "BAD_REQUEST", "Aucun fichier reçu.");
+  if (typeof publicationId !== "string" || !publicationId) {
+    return apiError(c, 400, "VALIDATION_ERROR", "publicationId requis.");
+  }
+  if (!ALLOWED_MIME_TYPES.has(file.type)) {
+    return apiError(c, 400, "VALIDATION_ERROR", "Type de fichier non autorisé. Formats acceptés : JPEG, PNG, WEBP.");
+  }
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    return apiError(c, 400, "VALIDATION_ERROR", "Fichier trop volumineux (5 Mo maximum).");
+  }
+
+  const publication = await c.env.DB
+    .prepare("SELECT id, image_url FROM publications WHERE id = ?")
+    .bind(publicationId)
+    .first<{ id: string; image_url: string | null }>();
+  if (!publication) return apiError(c, 404, "NOT_FOUND", "Publication introuvable.");
+
+  const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+  const key = `publications/${publicationId}/${crypto.randomUUID()}.${extension}`;
+
+  await c.env.ASSETS.put(key, await file.arrayBuffer(), {
+    httpMetadata: { contentType: file.type },
+  });
+  await c.env.DB
+    .prepare("UPDATE publications SET image_url = ?, updated_at = datetime('now'), updated_by = ? WHERE id = ?")
+    .bind(key, user.id, publicationId)
+    .run();
+
+  // L'ancienne image, si elle venait de R2, n'est plus utile.
+  if (publication.image_url && publication.image_url.startsWith("publications/")) {
+    await c.env.ASSETS.delete(publication.image_url);
+  }
+
+  await writeAuditLog(c.env, {
+    userId: user.id, userName: user.fullName, action: "media.publication",
+    entityType: "publication", entityId: publicationId, details: { key },
+  });
+
+  return c.json({ key, success: true }, 201);
+});
+
 // PATCH /api/admin/media/:imageId/primary — choisit la photo principale d'un produit.
 mediaRoutes.patch("/:imageId/primary", requirePermission("media.upload"), async (c) => {
   const user = c.get("user");
@@ -143,7 +201,7 @@ mediaRoutes.delete("/:imageId", requirePermission("media.upload"), async (c) => 
 // ---------------------------------------------------------------------
 export const publicMediaRoutes = new Hono<{ Bindings: MediaBindings; Variables: Variables }>();
 
-const MEDIA_KEY_PATTERN = /^products\/[A-Za-z0-9_-]+\/[A-Za-z0-9-]+\.(jpg|png|webp)$/;
+const MEDIA_KEY_PATTERN = /^(products|publications)\/[A-Za-z0-9_-]+\/[A-Za-z0-9-]+\.(jpg|png|webp)$/;
 const PUBLIC_MEDIA_PREFIX = "/api/public/media/";
 
 publicMediaRoutes.get("/*", async (c) => {
