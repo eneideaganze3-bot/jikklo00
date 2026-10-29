@@ -79,6 +79,20 @@ export function Products() {
     }
   }
 
+  async function removeProduct(p: Product) {
+    if (!window.confirm(`Supprimer « ${p.name} » ? Il ne sera plus visible sur le site ni dans cette liste.`)) return;
+    setListError(null);
+    try {
+      await api.delete(`/api/admin/products/${p.id}`);
+      if (photosFor === p.id) setPhotosFor(null);
+      load();
+    } catch (err) {
+      setListError(err instanceof ApiError ? err.message : "Impossible de supprimer le produit.");
+    }
+  }
+
+  // Un produit « supprimé » est archivé côté API : on ne l'affiche plus.
+  const visibleProducts = products.filter((p) => p.status !== "archived");
   const canEdit = hasPermission("products.edit");
   const canPhotos = hasPermission("media.upload");
 
@@ -165,7 +179,7 @@ export function Products() {
       {listError && <div className="text-sm text-red-600">{listError}</div>}
 
       <div className="bg-white border rounded-xl overflow-x-auto">
-        {products.length === 0 ? (
+        {visibleProducts.length === 0 ? (
           <p className="text-sm text-slate-400 p-6 text-center">Aucun produit disponible.</p>
         ) : (
           <table className="w-full text-sm">
@@ -179,13 +193,13 @@ export function Products() {
               </tr>
             </thead>
             <tbody>
-              {products.map((p) => (
+              {visibleProducts.map((p) => (
                 <Fragment key={p.id}>
                 <tr className="border-t">
                   <td className="px-4 py-2">
                     <div>{p.name}</div>
                     {(canEdit || canPhotos) && (
-                      <div className="mt-1 space-x-3 whitespace-nowrap">
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
                         {canEdit && (
                           <button
                             type="button"
@@ -202,6 +216,15 @@ export function Products() {
                             className="text-xs text-jikklo-navy underline"
                           >
                             {photosFor === p.id ? "Fermer les photos" : "Photos"}
+                          </button>
+                        )}
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => removeProduct(p)}
+                            className="text-xs text-red-600 underline"
+                          >
+                            Supprimer
                           </button>
                         )}
                       </div>

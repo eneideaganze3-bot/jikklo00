@@ -29,21 +29,28 @@ export function Inventory() {
   const [error, setError] = useState<string | null>(null);
 
   function load() {
-    api.get<{ inventory: InvRow[] }>("/api/admin/inventory").then((r) => setRows(r.inventory));
+    api
+      .get<{ inventory: InvRow[] }>("/api/admin/inventory")
+      .then((r) => setRows(r.inventory))
+      .catch((err) => setError(err instanceof ApiError ? err.message : "Impossible de charger le stock."));
   }
 
   useEffect(load, []);
 
-  async function handleMovement(productId: string, type: "entree" | "correction") {
+  // « entree » ajoute au stock ; « sortie » retire (perte, casse, correction).
+  async function handleMovement(productId: string, kind: "entree" | "sortie") {
     setError(null);
-    const qty = Number(quantity);
-    if (!qty) return;
+    const qty = Math.abs(Number(quantity));
+    if (!qty) {
+      setError("Saisis une quantité.");
+      return;
+    }
     try {
       await api.post("/api/admin/inventory/movement", {
         productId,
-        type,
-        quantity: type === "entree" ? Math.abs(qty) : qty,
-        reason: type === "entree" ? "Réapprovisionnement" : "Correction manuelle",
+        type: kind === "entree" ? "entree" : "correction",
+        quantity: kind === "entree" ? qty : -qty,
+        reason: kind === "entree" ? "Réapprovisionnement" : "Sortie / correction manuelle",
       });
       setMovingId(null);
       setQuantity("");
@@ -58,7 +65,7 @@ export function Inventory() {
       <h1 className="text-xl font-semibold text-jikklo-navy">Stock</h1>
       {error && <div className="text-sm text-red-600">{error}</div>}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div className="bg-white border rounded-xl overflow-x-auto">
         {rows.length === 0 ? (
           <p className="text-sm text-slate-400 p-6 text-center">Aucune donnée de stock.</p>
         ) : (
@@ -68,48 +75,71 @@ export function Inventory() {
                 <th className="px-4 py-2 font-medium">Produit</th>
                 <th className="px-4 py-2 font-medium">Quantité</th>
                 <th className="px-4 py-2 font-medium">Statut</th>
-                <th className="px-4 py-2 font-medium"></th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.product_id} className="border-t">
-                  <td className="px-4 py-2">{r.name}</td>
-                  <td className="px-4 py-2">{r.quantity} {r.unit}</td>
+                <tr key={r.product_id} className="border-t align-top">
                   <td className="px-4 py-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLES[r.stock_status]}`}>
-                      {STATUS_LABELS[r.stock_status]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2 text-right">
+                    <div>{r.name}</div>
                     {movingId === r.product_id ? (
-                      <div className="flex items-center gap-2 justify-end">
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
                         <input
                           autoFocus
                           type="number"
-                          placeholder="Qté"
+                          min="0"
+                          inputMode="decimal"
+                          placeholder="Quantité"
                           value={quantity}
                           onChange={(e) => setQuantity(e.target.value)}
-                          className="border rounded px-2 py-1 w-20 text-sm"
+                          className="border rounded px-2 py-1 w-24 text-sm"
                         />
                         <button
+                          type="button"
                           onClick={() => handleMovement(r.product_id, "entree")}
-                          className="text-jikklo-accent text-xs font-medium"
+                          className="text-xs font-medium px-3 py-1.5 rounded bg-jikklo-accent text-white"
                         >
                           + Entrée
                         </button>
-                        <button onClick={() => setMovingId(null)} className="text-slate-400 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => handleMovement(r.product_id, "sortie")}
+                          className="text-xs font-medium px-3 py-1.5 rounded bg-red-600 text-white"
+                        >
+                          − Sortie
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMovingId(null);
+                            setQuantity("");
+                          }}
+                          className="text-slate-500 text-xs underline"
+                        >
                           Annuler
                         </button>
                       </div>
                     ) : (
                       <button
-                        onClick={() => setMovingId(r.product_id)}
-                        className="text-jikklo-navy text-xs font-medium underline"
+                        type="button"
+                        onClick={() => {
+                          setMovingId(r.product_id);
+                          setQuantity("");
+                          setError(null);
+                        }}
+                        className="mt-1 text-jikklo-navy text-xs font-medium underline"
                       >
-                        Ajuster
+                        Ajuster le stock
                       </button>
                     )}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    {r.quantity} {r.unit}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${STATUS_STYLES[r.stock_status]}`}>
+                      {STATUS_LABELS[r.stock_status]}
+                    </span>
                   </td>
                 </tr>
               ))}
