@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState } from "react";
 import { api, ApiError } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -73,7 +73,10 @@ export function Orders() {
 
   function load() {
     const query = filter ? `?status=${filter}` : "";
-    api.get<{ orders: Order[] }>(`/api/orders/admin${query}`).then((r) => setOrders(r.orders));
+    api
+      .get<{ orders: Order[] }>(`/api/orders/admin${query}`)
+      .then((r) => setOrders(r.orders))
+      .catch((err) => setError(err instanceof ApiError ? err.message : "Impossible de charger les commandes."));
   }
 
   useEffect(load, [filter]);
@@ -95,8 +98,12 @@ export function Orders() {
     }
     setExpandedId(orderId);
     if (!payments[orderId]) {
-      const r = await api.get<{ payments: PaymentDetail[] }>(`/api/orders/admin/${orderId}`);
-      setPayments((prev) => ({ ...prev, [orderId]: r.payments ?? [] }));
+      try {
+        const r = await api.get<{ payments: PaymentDetail[] }>(`/api/orders/admin/${orderId}`);
+        setPayments((prev) => ({ ...prev, [orderId]: r.payments ?? [] }));
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "Impossible de charger le paiement.");
+      }
     }
   }
 
@@ -129,116 +136,98 @@ export function Orders() {
       </div>
       {error && <div className="text-sm text-red-600">{error}</div>}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div className="bg-white border rounded-xl divide-y">
         {orders.length === 0 ? (
           <p className="text-sm text-slate-400 p-6 text-center">Aucune commande pour le moment.</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-500 text-left">
-              <tr>
-                <th className="px-4 py-2 font-medium">N°</th>
-                <th className="px-4 py-2 font-medium">Client</th>
-                <th className="px-4 py-2 font-medium">Total</th>
-                <th className="px-4 py-2 font-medium">Statut</th>
-                <th className="px-4 py-2 font-medium">Paiement</th>
-                <th className="px-4 py-2 font-medium">Date</th>
-                <th className="px-4 py-2 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((o) => (
-                <Fragment key={o.id}>
-                <tr className="border-t">
-                  <td className="px-4 py-2 font-mono text-xs">{o.order_number}</td>
-                  <td className="px-4 py-2">{o.customer_name}</td>
-                  <td className="px-4 py-2">{o.total.toLocaleString()} {o.currency}</td>
-                  <td className="px-4 py-2">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                      {STATUS_LABELS[o.status] ?? o.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2">
-                    {o.payment_method_name ? (
-                      <button
-                        onClick={() => togglePaymentDetails(o.id)}
-                        className={`text-xs px-2 py-0.5 rounded-full ${PAYMENT_STATUS_STYLES[o.payment_status] ?? "bg-slate-100 text-slate-500"}`}
-                      >
-                        {o.payment_method_name} · {PAYMENT_STATUS_LABELS[o.payment_status] ?? o.payment_status}
-                      </button>
-                    ) : (
-                      <span className="text-xs text-slate-400">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-slate-400 text-xs">
-                    {new Date(o.created_at).toLocaleDateString("fr-FR")}
-                  </td>
-                  <td className="px-4 py-2 text-right">
-                    {NEXT_STATUS[o.status]?.length > 0 && (
-                      <select
-                        onChange={(e) => e.target.value && updateStatus(o.id, e.target.value)}
-                        defaultValue=""
-                        className="border rounded px-2 py-1 text-xs"
-                      >
-                        <option value="" disabled>Changer statut</option>
-                        {NEXT_STATUS[o.status].map((s) => (
-                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                        ))}
-                      </select>
-                    )}
-                  </td>
-                </tr>
-                {expandedId === o.id && o.payment_method_name && (
-                  <tr className="border-t bg-slate-50">
-                    <td colSpan={7} className="px-4 py-3">
-                      {!payments[o.id] ? (
-                        <p className="text-xs text-slate-400">Chargement…</p>
-                      ) : payments[o.id].length === 0 ? (
-                        <p className="text-xs text-slate-400">Aucun paiement enregistré pour cette commande.</p>
-                      ) : (
-                        <div className="space-y-2">
-                          {payments[o.id].map((p) => (
-                            <div key={p.id} className="flex flex-wrap items-center gap-3 text-xs">
-                              <span className="font-medium">{p.payment_method_name}</span>
-                              <span>{p.amount.toLocaleString()} {p.currency}</span>
-                              <span className="text-slate-400">Référence : {p.reference ?? "—"}</span>
-                              <span className="text-slate-400">
-                                {new Date(p.created_at).toLocaleString("fr-FR")}
-                              </span>
-                              <span className={`px-2 py-0.5 rounded-full ${PAYMENT_STATUS_STYLES[p.status] ?? "bg-slate-100 text-slate-500"}`}>
-                                {PAYMENT_STATUS_LABELS[p.status] ?? p.status}
-                              </span>
-                              {hasPermission("payments.manage") && p.status === "pending" && (
-                                <span className="flex gap-2 ml-auto">
-                                  <button
-                                    onClick={() => setPaymentStatus(p.id, o.id, "confirmed")}
-                                    className="px-2 py-1 rounded bg-green-600 text-white"
-                                  >
-                                    Confirmer
-                                  </button>
-                                  <button
-                                    onClick={() => setPaymentStatus(p.id, o.id, "failed")}
-                                    className="px-2 py-1 rounded bg-red-600 text-white"
-                                  >
-                                    Rejeter
-                                  </button>
-                                </span>
-                              )}
-                              {!hasPermission("payments.manage") && p.status === "pending" && (
-                                <span className="text-slate-400 ml-auto">
-                                  Permission "payments.manage" requise pour confirmer/rejeter.
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
+          orders.map((o) => (
+            <div key={o.id} className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-mono text-xs text-slate-500">{o.order_number}</div>
+                  <div className="text-sm font-medium text-slate-800 break-words">{o.customer_name}</div>
+                  <div className="text-sm">{o.total.toLocaleString()} {o.currency}</div>
+                  <div className="text-xs text-slate-400">{new Date(o.created_at).toLocaleDateString("fr-FR")}</div>
+                </div>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 shrink-0">
+                  {STATUS_LABELS[o.status] ?? o.status}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {o.payment_method_name ? (
+                  <button
+                    onClick={() => togglePaymentDetails(o.id)}
+                    className={`text-xs px-3 py-1.5 rounded-full ${PAYMENT_STATUS_STYLES[o.payment_status] ?? "bg-slate-100 text-slate-500"}`}
+                  >
+                    {o.payment_method_name} · {PAYMENT_STATUS_LABELS[o.payment_status] ?? o.payment_status}
+                    {expandedId === o.id ? " ▲" : " ▼"}
+                  </button>
+                ) : (
+                  <span className="text-xs text-slate-400">Pas de paiement</span>
                 )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
+                {NEXT_STATUS[o.status]?.length > 0 && (
+                  <select
+                    onChange={(e) => e.target.value && updateStatus(o.id, e.target.value)}
+                    defaultValue=""
+                    className="border rounded px-2 py-1 text-xs"
+                  >
+                    <option value="" disabled>Changer le statut</option>
+                    {NEXT_STATUS[o.status].map((st) => (
+                      <option key={st} value={st}>{STATUS_LABELS[st]}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              {expandedId === o.id && o.payment_method_name && (
+                <div className="bg-slate-50 border rounded-lg p-3">
+                  {!payments[o.id] ? (
+                    <p className="text-xs text-slate-400">Chargement…</p>
+                  ) : payments[o.id].length === 0 ? (
+                    <p className="text-xs text-slate-400">Aucun paiement enregistré pour cette commande.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {payments[o.id].map((p) => (
+                        <div key={p.id} className="space-y-2 text-xs">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span className="font-medium">{p.payment_method_name}</span>
+                            <span>{p.amount.toLocaleString()} {p.currency}</span>
+                            <span className={`px-2 py-0.5 rounded-full ${PAYMENT_STATUS_STYLES[p.status] ?? "bg-slate-100 text-slate-500"}`}>
+                              {PAYMENT_STATUS_LABELS[p.status] ?? p.status}
+                            </span>
+                          </div>
+                          <div className="text-slate-500 break-all">Référence : {p.reference ?? "—"}</div>
+                          <div className="text-slate-400">{new Date(p.created_at).toLocaleString("fr-FR")}</div>
+                          {hasPermission("payments.manage") && p.status === "pending" && (
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setPaymentStatus(p.id, o.id, "confirmed")}
+                                className="px-3 py-1.5 rounded bg-green-600 text-white"
+                              >
+                                Confirmer le paiement
+                              </button>
+                              <button
+                                onClick={() => setPaymentStatus(p.id, o.id, "failed")}
+                                className="px-3 py-1.5 rounded bg-red-600 text-white"
+                              >
+                                Rejeter
+                              </button>
+                            </div>
+                          )}
+                          {!hasPermission("payments.manage") && p.status === "pending" && (
+                            <div className="text-slate-400">
+                              Permission « payments.manage » requise pour confirmer ou rejeter.
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>
