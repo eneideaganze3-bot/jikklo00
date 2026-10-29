@@ -144,10 +144,76 @@
       }
     }
 
+    renderPaymentRecap(response, confirmationTextEl);
+
     // Le panier a été consommé par une commande réelle côté serveur : on le
     // vide pour éviter une double commande accidentelle si l'utilisateur
     // revient en arrière.
     window.JIKKLO_CART.clearCart();
+  }
+
+  // Rappel du paiement à effectuer, affiché sur l'écran de confirmation :
+  // montant, moyen choisi et instructions (numéro agent…). Sans ce rappel,
+  // un client qui commande avant de payer perdait ces informations.
+  // Libellés propres à cet écran (français par défaut, anglais si la langue
+  // du site est l'anglais) ; les instructions viennent de l'Admin.
+  const RECAP_LABELS = {
+    fr: {
+      amount: "Montant à payer",
+      method: "Moyen de paiement",
+      after: "Une fois le paiement effectué, notre équipe le vérifie puis confirme votre commande. Gardez le message de confirmation de l'opérateur : il peut vous être demandé.",
+    },
+    en: {
+      amount: "Amount to pay",
+      method: "Payment method",
+      after: "Once you have paid, our team checks the payment and confirms your order. Keep the confirmation message from your mobile money operator: we may ask for it.",
+    },
+  };
+
+  function renderPaymentRecap(response, anchorEl) {
+    let recapEl = document.querySelector("[data-checkout-payment-recap]");
+    if (!recapEl) {
+      if (!anchorEl || !anchorEl.parentNode) return;
+      recapEl = document.createElement("div");
+      recapEl.setAttribute("data-checkout-payment-recap", "");
+      recapEl.style.cssText =
+        "margin:16px auto 0;max-width:520px;padding:14px 16px;border:1px solid var(--turquoise);border-radius:var(--radius-md);text-align:left;font-size:0.9rem;display:grid;gap:8px;";
+      anchorEl.parentNode.insertBefore(recapEl, anchorEl.nextSibling);
+    }
+    recapEl.textContent = "";
+
+    const payment = response && response.payment;
+    if (!payment || payment.kind !== "manual") {
+      recapEl.hidden = true;
+      return;
+    }
+    recapEl.hidden = false;
+
+    const lang = document.documentElement.getAttribute("lang") === "en" ? "en" : "fr";
+    const labels = RECAP_LABELS[lang];
+    const total = Number(response.total);
+    const amountText = Number.isFinite(total)
+      ? total.toLocaleString(lang === "en" ? "en-US" : "fr-FR") + " " + (response.currency || "")
+      : "";
+
+    function addLine(label, value, strong) {
+      if (!value) return;
+      const line = document.createElement("div");
+      if (label) {
+        const labelEl = document.createElement("span");
+        labelEl.textContent = label + " : ";
+        line.appendChild(labelEl);
+      }
+      const valueEl = document.createElement(strong ? "strong" : "span");
+      valueEl.textContent = value; // textContent : aucune injection HTML possible
+      line.appendChild(valueEl);
+      recapEl.appendChild(line);
+    }
+
+    addLine(labels.amount, amountText.trim(), true);
+    addLine(labels.method, payment.methodName, true);
+    addLine("", payment.instructions, false);
+    addLine("", labels.after, false);
   }
 
   var loadedPaymentMethods = [];
