@@ -47,3 +47,14 @@ html.dark ::placeholder { color: #64748b !important; }
 html.dark .shadow,
 html.dark .shadow-sm,
 html.dark .shadow-md { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.4) !important; }
+
+/* ==========================================================================
+   Tableaux sur téléphone
+   Les pages enveloppent leurs tableaux dans un conteneur "overflow-hidden"
+   (coins arrondis). Sur un écran étroit, les colonnes de droite (statut,
+   actions…) étaient coupées sans moyen d'y accéder. Un conteneur qui
+   contient directement un tableau défile désormais horizontalement.
+   ========================================================================== */
+.overflow-hidden:has(> table) {
+  overflow-x: auto;
+}
