@@ -112,6 +112,12 @@
     });
   }
 
+  function getDigitalServices() {
+    return apiFetch("/api/public/digital-services").then(function (r) {
+      return { currency: (r && r.currency) || "CDF", services: (r && r.services) || [] };
+    });
+  }
+
   function submitContact(payload) {
     return apiFetch("/api/public/contact", { method: "POST", body: JSON.stringify(payload) });
   }
@@ -173,6 +179,7 @@
     getPublicSettings: getPublicSettings,
     getPaymentMethods: getPaymentMethods,
     getPublications: getPublications,
+    getDigitalServices: getDigitalServices,
     submitContact: submitContact,
     createOrder: createOrder,
     trackOrder: trackOrder,
