@@ -279,6 +279,23 @@ publicCatalogRoutes.get("/payment-methods", async (c) => {
   return c.json({ paymentMethods });
 });
 
+// GET /api/public/digital-services — services Jikklo Digital ACTIVÉS dans l'Admin.
+// Un service désactivé (état par défaut à la création) n'apparaît jamais ici.
+publicCatalogRoutes.get("/digital-services", async (c) => {
+  const [result, currencyRow] = await Promise.all([
+    c.env.DB
+      .prepare("SELECT id, name, description, price FROM digital_services WHERE enabled = 1 ORDER BY created_at ASC")
+      .all<{ id: string; name: string; description: string | null; price: number | null }>(),
+    c.env.DB.prepare("SELECT value FROM settings WHERE key = 'currency'").first<{ value: string }>(),
+  ]);
+  return c.json({
+    currency: currencyRow?.value ?? "CDF",
+    services: (result.results ?? []).map((svc) => ({
+      id: svc.id, name: svc.name, description: svc.description, price: svc.price,
+    })),
+  });
+});
+
 // GET /api/public/publications — section "Nouveautés Jikklo". Une
 // publication créée dans Admin apparaît ici dès qu'elle passe à
 // status='published', sans redéploiement.
