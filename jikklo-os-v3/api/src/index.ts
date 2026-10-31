@@ -139,10 +139,13 @@ app.route("/api/customer", customerAccountRoutes); // espace client public (regi
 // (règle #53 V1 / #33 V2). Les détails techniques vont dans les logs.
 // ---------------------------------------------------------------------
 app.onError((err, c) => {
-  console.error("Unhandled error:", err);
+  // Corps de requête JSON invalide ou vide : erreur du client, pas du serveur.
+  if (err instanceof SyntaxError) {
+    return apiError(c, 400, "INVALID_JSON", "Corps de requête JSON invalide.");
+  }
+  console.error(
+    `Unhandled error: ${c.req.method} ${c.req.path} — ${err instanceof Error ? err.message : String(err)}`,
+    err
+  );
   return apiError(c, 500, "INTERNAL_ERROR", "Une erreur est survenue. Veuillez réessayer.");
 });
-
-app.notFound((c) => apiError(c, 404, "NOT_FOUND", "Route introuvable."));
-
-export default app;
